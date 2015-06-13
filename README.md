@@ -1,36 +1,92 @@
 # RunnersUpdate
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/runners_update`. To experiment with that code, run `bin/console` for an interactive prompt.
+ランナーズアップデートのデータを取得します。ランナーズアップデートについては、[ランナーズアップデートとは - ランナーズアップデート](http://update.runnet.jp/2015chitose/help.html) を参照してください。
 
-## Installation
+## インストール
 
-Add this line to your application's Gemfile:
+Gemfile に次の行を追加します。
 
 ```ruby
-gem 'runners_update'
+gem 'runners_update', :git => 'https://github.com/kyoshidajp/runners_update.git'
+gem 'mechanize'
 ```
 
-And then execute:
+そして、次のコマンドを実行します。
 
-    $ bundle
+    $ bundle install
 
-Or install it yourself as:
+## 使い方
 
-    $ gem install runners_update
+最初にレースIDを確認します。レースIDとは、レースのランナーズアップデート検索画面URLが
 
-## Usage
+```
+http://update.runnet.jp/2015sibamata100/
+```
 
+または
 
-## Development
+```
+http://update.runnet.jp/2015sibamata100/index.html
+```
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `bin/console` for an interactive prompt that will allow you to experiment.
+の場合、`2015sibamata100` が該当します。
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release` to create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+次に、データを取得したいランナーのナンバーを調べます。ナンバーは一人の場合は `Fixnum`で、複数名の場合は要素が `Range` の `Array` で指定可能です。レース公式サイトの参加者名簿を参考にします。
 
-## Contributing
+ソースコードでは `runners_update` を `require` します。
 
-1. Fork it ( https://github.com/kyoshidajp/runners_update/fork )
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create a new Pull Request
+```ruby
+require 'runners_update'
+```
+
+`RunnersUpdate` の `get` メソッドに対して、レースID、ナンバーを渡します。
+
+```ruby
+result = RunnersUpdate.get(レースID, ナンバー)
+```
+
+結果は `RunnersUpdate::Runner` クラスの `Array` になっています。
+
+## サンプル
+
+次は2015年6月6日に行われた、[東京・柴又100K](http://tokyo100k.jp/)の結果について、ナンバー 1000〜1010、1〜100 のデータを CSV 形式で出力するサンプル `sample.rb` です。
+
+```ruby
+require 'runners_update'
+require 'csv'
+
+ID = '2015sibamata100/' # レースID
+RANGES = [
+  # 100K
+  1000..1010,
+  # アーリー
+  1..100,
+]
+
+result = RunnersUpdate.get(ID, RANGES)
+
+CSV do |writer|
+  result.each do |runner|
+    points = []
+    runner.splits.each do |s|
+      points << s.split
+    end
+    writer << [runner.number, runner.name].concat(points)
+  end
+end
+```
+
+```
+$ bundle exec ruby sample.rb
+
+... CSV形式の結果
+
+```
+
+## ライセンス
+
+- [MIT License](http://opensource.org/licenses/MIT)
+
+## 注意事項
+
+[総合利用規約](http://runnet.jp/help/rule/detail_n6.html) の「第4条　財産権について」に記載されていますが、取得したデータを公開する事は規約に違反すると思われます。
