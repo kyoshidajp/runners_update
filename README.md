@@ -31,7 +31,7 @@ http://update.runnet.jp/2015sibamata100/index.html
 
 の場合、`2015sibamata100` が該当します。
 
-次に、データを取得したいランナーのナンバーを調べます。ナンバーは一人の場合は `Fixnum`で、複数名の場合は要素が `Range` の `Array` で指定可能です。レース公式サイトの参加者名簿を参考にします。
+次に、データを取得したいランナーのナンバーをレース公式サイトの参加者名簿等を参考にして調べます。ナンバーは一人の場合は `String` または `Fixnum`、複数名の場合は `Range` の可変長引数で指定可能です。
 
 ソースコードでは `runners_update` を `require` します。
 
@@ -49,21 +49,15 @@ result = RunnersUpdate.get(レースID, ナンバー)
 
 ## サンプル
 
-次は2015年6月6日に行われた、[東京・柴又100K](http://tokyo100k.jp/)の結果について、ナンバー 1000〜1010、1〜100 のデータを CSV 形式で出力するサンプル `sample.rb` です。
+次は2015年6月6日に行われた、[東京・柴又100K](http://tokyo100k.jp/)の結果について、ナンバー 1〜100, 1000〜1010 のデータを CSV 形式で出力するサンプル `sample.rb` です。
 
 ```ruby
 require 'runners_update'
 require 'csv'
 
 ID = '2015sibamata100/' # レースID
-RANGES = [
-  # 100K
-  1000..1010,
-  # アーリー
-  1..100,
-]
 
-result = RunnersUpdate.get(ID, RANGES)
+result = RunnersUpdate.get(ID, 1..100, 1000..1010)
 
 CSV do |writer|
   result.each do |runner|

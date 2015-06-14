@@ -17,11 +17,11 @@ module RunnersUpdate
     # initialize
     #
     # @param [String] race_id レースID
-    # @param [Array] ranges ナンバーRangeのArray
-    def initialize(race_id, ranges)
+    # @param [Array] *args ナンバー
+    def initialize(race_id, *args)
       @agent = Mechanize.new
       @url = File.join(RunnersUpdate::BASE_URL, race_id)
-      @ranges = ranges
+      @ranges = *args
       @logger = Logger.new(LOG)
       @cache_dir = File.join(Dir.pwd, CASHE_DIR, race_id)
     end
@@ -34,8 +34,13 @@ module RunnersUpdate
 
       @ranges.each do |r|
 
-        if r.instance_of?(Fixnum)
+        if r.instance_of?(Fixnum) || r.instance_of?(String)
           result << _get_result(r.to_s)
+          next
+        end
+
+        unless r.instance_of?(Range)
+          @logger.error("Illigal number #{r}")
           next
         end
 
