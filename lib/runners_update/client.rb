@@ -29,7 +29,7 @@ module RunnersUpdate
     # 結果データを取得
     #
     # @return [Array] 結果データ
-    def get_result()
+    def get_result
       result = []
 
       @ranges.each do |r|
@@ -39,9 +39,9 @@ module RunnersUpdate
           next
         end
 
-        for n in r
+        r.each do |n|
           runner = _get_result(n.to_s)
-          if !runner.nil?
+          unless runner.nil?
             result << runner
           end
         end
@@ -85,7 +85,7 @@ module RunnersUpdate
     def get_page(number)
 
       cache = get_cache(number)
-      if !cache.nil?
+      unless cache.nil?
         return cache
       end
 
@@ -98,11 +98,11 @@ module RunnersUpdate
       form.number = number
       result_page = @agent.submit(form)
 
-      unless Dir.exist?(CASHE_DIR) then
+      unless Dir.exist?(CASHE_DIR)
         Dir.mkdir(CASHE_DIR)
       end
 
-      unless Dir.exist?(@cache_dir) then
+      unless Dir.exist?(@cache_dir)
         Dir.mkdir(@cache_dir)
       end
 
@@ -123,7 +123,7 @@ module RunnersUpdate
     # ランナーの結果データを取得
     #
     # @param [String] number ナンバー
-    # @return [Runner] 結果データ
+    # @return [Runner] 結果データa
     def _get_result(number)
       page = get_page(number)
 
@@ -132,16 +132,13 @@ module RunnersUpdate
         return nil
       end
 
-      name = page.at('div#personalBlock/dl/dd').text().sub('： ', '')
+      name = page.at('div#personalBlock/dl/dd').text.sub('： ', '')
 
       runner = Runner.new(number, name)
       trs = page.search('table.sarchList/tr[@align="center"]')
       trs.each  do |tr|
         tds = tr.xpath('td')
-        name = tds[0].text()
-        split = tds[1].text()
-        lap = tds[2].text()
-        pass = tds[3].text()
+        name, split, lap, pass = tds.map(&:text)
         runner.add_point(name, split, lap, pass)
       end
 
