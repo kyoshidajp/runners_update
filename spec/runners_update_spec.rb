@@ -7,34 +7,33 @@ describe RunnersUpdate do
   end
 
   describe '#client' do
-    before do
-      @result = RunnersUpdate.get('2015sibamata100', 1..3, 5..7)
+    it 'return number' do
+      result = RunnersUpdate.get('2015sibamata100', 1..3, 5..7)
+      expect(result[0].number).to eq('1')
     end
 
-    it 'Correct number' do
-      expect(@result[0].number).to eq '1'
-    end
-    it 'Correct result size' do
-      expect(@result.size).to eq 6
+    it 'return size' do
+      result = RunnersUpdate.get('2015sibamata100', 1..3, 5..7)
+      expect(result.size).to eq(6)
     end
 
-  end
-
-  describe '' do
-    result = RunnersUpdate.get('2015sibamata100', 1000)
-    it 'Not exist runner' do
-      expect(result).to eq []
+    it 'not exist runner' do
+      result = RunnersUpdate.get('2015sibamata100', 1000)
+      expect(result).to be_empty
     end
-  end
 
-  describe '' do
-    it 'String number' do
+    it 'allow string number' do
       result = RunnersUpdate.get('2015sibamata100', '1')
-      expect(result[0].number).to eq '1'
+      expect(result[0].number).to eq('1')
     end
-    it 'String not number' do
+
+    it 'ivalid number' do
       result = RunnersUpdate.get('2015sibamata100', 'xxxx')
-      expect(result).to eq []
+      expect(result).to be_empty
+    end
+
+    it 'closed race url' do
+      expect { RunnersUpdate.get('2014fujitozan', 3314) }.to raise_error(RunnersUpdate::RaceError)
     end
   end
 

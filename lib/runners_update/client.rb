@@ -99,6 +99,12 @@ module RunnersUpdate
       end
 
       search_page = @agent.get(@url)
+
+      # レースデータ取得エラー
+      if search_page.uri.path == '/record'
+        raise(RaceError.new(@url))
+      end
+
       form = search_page.forms[0]
       form.number = number
       result_page = @agent.submit(form)
@@ -113,7 +119,7 @@ module RunnersUpdate
 
       @logger.info("Download #{result_page.uri.path}")
 
-      # エラー（存在しない）でもキャッシュを作成する
+      # ランナーデータエラー（存在しない）でもキャッシュを作成する
       if File.basename(result_page.uri.path) == 'number_error.html'
         number_file = File.join(@cache_dir, number + '_error.html')
         @agent.download(result_page.uri.path, number_file)
@@ -148,6 +154,22 @@ module RunnersUpdate
       end
 
       return runner
+    end
+  end
+
+  # レース結果取得エラークラス
+  #
+  # 公開が終了または存在しないレースIDの場合
+  class RaceError < StandardError
+    attr_reader(:url)
+
+    # initialize
+    #
+    # @param [String] url URL
+    #
+    def initialize(url)
+      @url = url
+      super("Cant't get #{url}. Probably race url is closed or not exist.")
     end
   end
 end
