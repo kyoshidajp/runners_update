@@ -36,5 +36,4 @@ describe RunnersUpdate do
       expect { RunnersUpdate.get('2014fujitozan', 3314) }.to raise_error(RunnersUpdate::RaceError)
     end
   end
-
 end

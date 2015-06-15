@@ -1,5 +1,4 @@
 module RunnersUpdate
-
   # ランナークラス
   class Runner
     attr_accessor :number, :name, :splits

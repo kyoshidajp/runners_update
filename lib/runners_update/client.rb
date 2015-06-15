@@ -3,11 +3,8 @@ require 'mechanize'
 require 'runners_update/runner'
 
 module RunnersUpdate
-
   BASE_URL = 'http://update.runnet.jp/'
-
   class Client
-
     # キャッシュディレクトリ
     CASHE_DIR = 'cache'
 
@@ -29,13 +26,13 @@ module RunnersUpdate
     # 結果データを取得
     #
     # @return [Array] 結果データ
-    def get_result
+    def result
       result = []
 
       @ranges.each do |r|
 
         if r.instance_of?(Fixnum) || r.instance_of?(String)
-          result << _get_result(r.to_s)
+          result << _result(r.to_s)
           next
         end
 
@@ -45,7 +42,7 @@ module RunnersUpdate
         end
 
         r.each do |n|
-          runner = _get_result(n.to_s)
+          runner = _result(n.to_s)
           unless runner.nil?
             result << runner
           end
@@ -61,7 +58,7 @@ module RunnersUpdate
     #
     # @param [String] number ナンバー
     # @return [Mechanize::Page|nil] 結果ページデータ
-    def get_cache(number)
+    def cache(number)
       number_file = File.join(@cache_dir, number + '.html')
       if File.exist?(number_file)
         @logger.info("Found cache at #{number_file}")
@@ -87,9 +84,8 @@ module RunnersUpdate
     #
     # @param [String] number ナンバー
     # @return [Mechanize::Page|nil] 結果ページデータ
-    def get_page(number)
-
-      cache = get_cache(number)
+    def page(number)
+      cache = cache(number)
       unless cache.nil?
         return cache
       end
@@ -108,14 +104,13 @@ module RunnersUpdate
       form = search_page.forms[0]
       form.number = number
       result_page = @agent.submit(form)
+      return mkcache(result_page)
+    end
 
-      unless Dir.exist?(CASHE_DIR)
-        Dir.mkdir(CASHE_DIR)
-      end
-
-      unless Dir.exist?(@cache_dir)
-        Dir.mkdir(@cache_dir)
-      end
+    # キャッシュを作成
+    #
+    def mkcache(result_page)
+      mkcache_dir
 
       @logger.info("Download #{result_page.uri.path}")
 
@@ -131,12 +126,24 @@ module RunnersUpdate
       return result_page
     end
 
+    # キャッシュディレクトリを作成
+    #
+    def mkcache_dir
+      unless Dir.exist?(CASHE_DIR)
+        Dir.mkdir(CASHE_DIR)
+      end
+
+      unless Dir.exist?(@cache_dir)
+        Dir.mkdir(@cache_dir)
+      end
+    end
+
     # ランナーの結果データを取得
     #
     # @param [String] number ナンバー
     # @return [Runner] 結果データa
-    def _get_result(number)
-      page = get_page(number)
+    def _result(number)
+      page = page(number)
 
       # 取得出来ず
       if page.nil?
