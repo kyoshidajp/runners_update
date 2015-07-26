@@ -104,24 +104,26 @@ module RunnersUpdate
       form = search_page.forms[0]
       form.number = number
       result_page = @agent.submit(form)
-      return mkcache(result_page)
+      return mkcache(result_page, number)
     end
 
     # キャッシュを作成
     #
-    def mkcache(result_page)
+    # @param [Mechanize::Page] result_page Mechanize:Page
+    # @param [String] number ナンバー
+    def mkcache(result_page, number)
       mkcache_dir
 
       @logger.info("Download #{result_page.uri.path}")
 
       # ランナーデータエラー（存在しない）でもキャッシュを作成する
       if File.basename(result_page.uri.path) == 'number_error.html'
-        number_file = File.join(@cache_dir, number + '_error.html')
+        number_file = File.join(@cache_dir, "#{number}_error.html")
         @agent.download(result_page.uri.path, number_file)
         return nil
       end
 
-      number_file = File.join(@cache_dir, number + '.html')
+      number_file = File.join(@cache_dir, "#{number}.html")
       @agent.download(result_page.uri.path, number_file)
       return result_page
     end
