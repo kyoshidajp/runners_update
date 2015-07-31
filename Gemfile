@@ -10,3 +10,8 @@ group :development do
   gem 'guard-rubocop'
   gem 'terminal-notifier-guard'
 end
+
+group :test do
+  gem 'webmock'
+  gem 'sinatra'
+end
