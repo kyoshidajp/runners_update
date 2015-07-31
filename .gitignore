@@ -1,6 +1,7 @@
 .bundle
 .yardoc
 .idea
+.rubocop.yml
 log
 Gemfile.lock
 _yardoc
@@ -10,4 +11,4 @@ doc
 pkg
 spec/reports
 tmp
-vendeer/bundle
+vendor/bundle
