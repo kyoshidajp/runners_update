@@ -3,7 +3,6 @@
 .idea
 .rubocop.yml
 log
-Gemfile.lock
 _yardoc
 cache
 coverage
