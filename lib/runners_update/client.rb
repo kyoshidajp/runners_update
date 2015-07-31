@@ -143,7 +143,7 @@ module RunnersUpdate
     # ランナーの結果データを取得
     #
     # @param [String] number ナンバー
-    # @return [Runner] 結果データa
+    # @return [Runner] 結果データ
     def _result(number)
       page = page(number)
 
